@@ -110,7 +110,7 @@ def part_6() -> None:
 
     log_res = LogisticRegression()
     log_res.fit(
-        Variable(obs),
+        obs,
         Variable(ground_truth),
         lr=0.1,
         loss_function=log_loss,

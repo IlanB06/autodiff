@@ -4,6 +4,7 @@ from copy import deepcopy
 import numpy as np
 
 from autodiff.variable import Variable
+from autodiff.helper import Standardizer
 
 
 class LogisticRegression:
@@ -27,7 +28,7 @@ class LogisticRegression:
 
     def fit(
         self,
-        observations: Variable,
+        obs: np.ndarray,
         gt: Variable,
         lr: float,
         *,
@@ -50,15 +51,11 @@ class LogisticRegression:
             max_iter (int): Maximum number of iterations.
         """
         self._hyperparameters["learning_rate"] = lr
-        obs = observations.data
+        self.std = Standardizer()
+        obs = self.std.standardize_data(obs)
+
         n = obs.shape[0]
-
-        self._mean = np.mean(obs, axis=0)
-        self._sigma = np.std(obs, axis=0)
-        standardized_data = (obs - self._mean) / self._sigma
-
-        obs = standardized_data
-        aug_obs_np = np.concatenate([obs, np.ones((n, 1))], axis=1)
+        aug_obs_np = np.append(obs, np.ones((n, 1)), axis=1)
         aug_obs = Variable(aug_obs_np)
 
         n_features = aug_obs.data.shape[1]
@@ -93,12 +90,9 @@ class LogisticRegression:
         Returns:
             np.ndarray: y_hat, as probalities
         """
-        if self._mean is None or self._sigma is None:
-            err_msg = "You should fit the model before calling predict"
-            raise ValueError(err_msg)
-        standardize_data = (data - self._mean) / self._sigma
+        standardize_data = (data - self.std.mean) / self.std.std
         n = standardize_data.shape[0]
-        aug_data = np.concatenate([standardize_data, np.ones((n, 1))], axis=1)
+        aug_data = np.append(standardize_data, np.ones((n, 1)), axis=1)
         return 1.0 / (1.0 + np.exp(np.matmul(-aug_data, self._parameters["params"])))
 
     @property
