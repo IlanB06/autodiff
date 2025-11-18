@@ -1,0 +1,72 @@
+name: Style and formatting
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+jobs:
+  code-style:
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        python-version: ["3.12"]
+      fail-fast: false
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up the environment
+        uses: ./.github/actions/setup-python-env
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Check styling
+        run: uvx ruff check --select ALL --ignore T,D100,D2,D4,ARG002,ANN002,ANN003,ANN401,E402,RET504,EM102,TRY003,RUF002,PD011,COM812,W,D102,D103,D104,D105,PLR0913,NPY002,FBT001,FBT002 --exclude .github --exclude tests
+
+  formatting:
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        python-version: ["3.12"]
+      fail-fast: false
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up the environment
+        uses: ./.github/actions/setup-python-env
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Check formatting
+        run: uvx ruff format --diff --exclude .github
+
+  type-check:
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        python-version: ["3.12"]
+      fail-fast: false
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up the environment
+        uses: ./.github/actions/setup-python-env
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Check typing
+        run: uvx ty check --exclude .github

@@ -1,0 +1,29 @@
+name: Running code
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  check-reproducibility:
+    runs-on: self-hosted
+    permissions: write-all
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up the environment
+        uses: ./.github/actions/setup-python-env
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Run main.py
+        id: run_main
+        run: |
+          set +e
+          uv run python main.py
+          exit_code=$?
+          echo "EXIT_CODE=${exit_code}" >> $GITHUB_OUTPUT
+          exit $exit_code
