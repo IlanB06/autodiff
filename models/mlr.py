@@ -4,6 +4,7 @@ from copy import deepcopy
 import numpy as np
 
 from autodiff.variable import Variable
+from autodiff.helper import Standardizer
 
 
 class MultipleLinearRegression:
@@ -42,7 +43,7 @@ class MultipleLinearRegression:
 
     def fit_gradient_descent(
         self,
-        observations: Variable,
+        obs: np.ndarray,
         ground_truth: Variable,
         *,
         lr: float,
@@ -60,7 +61,7 @@ class MultipleLinearRegression:
         however removing this would still result in too many arguments).
 
         Args:
-            observations (Variable): The observations
+            observations (np.ndarray): The observations
             ground_truth (Variable): The ground truth
             lr (float): Learning rate
             loss_function (Callable): Loss function, should only take
@@ -72,19 +73,12 @@ class MultipleLinearRegression:
             and no standardization. Defaults to False.
         """
         self._hyperparameters["learning_rate"] = lr
-
-        obs = observations.data
-
-        # Having this outside the if statement avoids type checkers throwing a fit.
-        mean = np.mean(obs, axis=0)
-        sigma = np.std(obs, axis=0)
-        standardized_data = (obs - mean) / sigma
-
+        std = Standardizer()
         if standardize_data:
-            obs = standardized_data
+            obs = std.standardize_data(obs)
 
         n = obs.shape[0]
-        aug_obs_np = np.concatenate([obs, np.ones((n, 1))], axis=1)
+        aug_obs_np = np.append(obs, np.ones((n, 1)), axis=1)
         aug_obs = Variable(aug_obs_np)
 
         n_features = aug_obs.data.shape[1]
@@ -112,14 +106,7 @@ class MultipleLinearRegression:
         # Destandardize params, since they were trained on standardized data
         if standardize_data:
             standardized_params = self._parameters["params"]
-            standardized_weights = standardized_params[:-1]
-            standardized_bias = standardized_params[-1]
-
-            original_weights = standardized_weights / sigma.reshape(-1, 1)
-            original_bias = standardized_bias - np.sum(
-                (mean / sigma).reshape(-1, 1) * standardized_weights
-            )
-            self._parameters["params"] = np.vstack([original_weights, original_bias])
+            self._parameters["params"] = std.destandardize_data(standardized_params)
 
     def predict(self, data: np.ndarray) -> np.ndarray:
         """Predicts output values of given input data

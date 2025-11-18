@@ -155,7 +155,7 @@ def showcase_l2_loss(*, standardize: bool = False) -> None:
 
     gaussian_initialization_69 = make_gaussian(seed=69)
     mlr_gd_l2.fit_gradient_descent(
-        Variable(obs),
+        obs,
         Variable(ground_truth),
         lr=0.1,
         loss_function=ridge_loss,
@@ -195,7 +195,7 @@ def showcase_mlr(*, standardize: bool = False) -> None:
 
     gaussian_initialization = make_gaussian(seed=42)
     mlr_gd.fit_gradient_descent(
-        Variable(obs),
+        obs,
         Variable(ground_truth),
         lr=0.1,
         loss_function=mean_squared_error,
@@ -212,7 +212,7 @@ def showcase_mlr(*, standardize: bool = False) -> None:
 
     gaussian_initialization_69 = make_gaussian(seed=69)
     mlr_gd_l1.fit_gradient_descent(
-        Variable(obs),
+        obs,
         Variable(ground_truth),
         lr=0.1,
         loss_function=lasso_loss,
