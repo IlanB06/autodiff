@@ -38,9 +38,6 @@ class LogisticRegression:
     ) -> None:
         """Fit the logistic regression model using gradient descent
 
-        ruff PLR0913 does not agree with the amount of arguments passed,
-        however every argument is neccesary.
-
         Args:
             observations (Variable): The observations
             gt (Variable): The ground truth

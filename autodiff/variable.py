@@ -49,8 +49,30 @@ class Variable:
         Returns:
             Variable: Added array, with Add as operator
         """
-        self._check_shape(self, other, "add")
-        return operations.Add()(self, other)
+        checked_other: Variable = self._check_if_variable(other)
+        if checked_other is NotImplemented:
+            return NotImplemented
+
+        self._check_if_scalar(checked_other)
+        
+        return operations.Add()(self, checked_other)
+    
+    def __radd__(self, other: Variable) -> Variable:
+        """Add two arrays of the same shape
+
+        Args:
+            other (Variable): Array to be added to self.data
+
+        Returns:
+            Variable: Added array, with Add as operator
+        """
+        checked_other: Variable = self._check_if_variable(other)
+        if checked_other is NotImplemented:
+            return NotImplemented
+
+        self._check_if_scalar(checked_other)
+        
+        return operations.Add()(self, checked_other)
 
     def __mul__(self, other: NumOrVariable) -> Variable:
         """Multiply two arrays of the same shape, or an array and scalar
@@ -73,10 +95,10 @@ class Variable:
         """Multiply an array and a scalar from right to left
 
         Args:
-            other (Variable):
+            other (Variable): The array to be multiplied with self.data
 
         Returns:
-            _type_: Array multiplied with scalar
+            Variable: Array multiplied with scalar
         """
         checked_other: Variable = self._check_if_variable(other)
         if checked_other is NotImplemented:

@@ -56,10 +56,6 @@ class MultipleLinearRegression:
         gradient descent, you can specify your loss function and your
         parameter initialization.
 
-        ruff PLR0913 does not agree with the amount of arguments passed,
-        however every argument is neccesary (maybe apart from standardize_data
-        however removing this would still result in too many arguments).
-
         Args:
             observations (np.ndarray): The observations
             ground_truth (Variable): The ground truth
